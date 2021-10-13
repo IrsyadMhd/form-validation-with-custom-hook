@@ -1,60 +1,52 @@
-import useInput from "../hooks/use-input";
+import { useState } from "react";
 import Input from "./Input";
 
 const SimpleInput = (props) => {
-  const {
-    value: enteredName,
-    isValid: nameInputIsValid,
-    hasError: nameInputHasError,
-    valueChanged: onInputNameChangeHandler,
-    inputBlur: onInputNameBlurHandler,
-    reset: resetNameInput,
-  } = useInput((value) => value.trim() !== "");
-
-  const {
-    value: enteredEmail,
-    isValid: emailInputIsValid,
-    hasError: emailInputHasError,
-    valueChanged: onInputEmailChangeHandler,
-    inputBlur: onInputEmailBlurHandler,
-    reset: resetEmailInput,
-  } = useInput((value) => value.includes("@"));
+  const [nameInput, setNameInput] = useState("");
+  const [emailInput, setEmailInput] = useState("initialState");
+  const [confirm, setConfirm] = useState(true);
 
   let formIsValid = false;
 
-  if (nameInputIsValid && emailInputIsValid) {
+  if (nameInput.trim() !== "" && emailInput.includes("@")) {
     formIsValid = true;
   }
 
+  const onUpdateValue = (val, id) => {
+    id === "email" ? setEmailInput(val) : setNameInput(val);
+    setConfirm(true);
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
-    if (!formIsValid) return;
-    console.log(enteredName, enteredEmail);
-    resetEmailInput("");
-    resetNameInput("");
+
+    if (!formIsValid) {
+      setConfirm(false);
+      return;
+    }
+    setConfirm(1);
+    setEmailInput("");
+    setNameInput("");
+    console.log(nameInput, emailInput);
   };
 
   return (
     <form onSubmit={submitHandler}>
       <Input
-        hasError={nameInputHasError}
-        value={enteredName}
         title="Your Name"
         type="text"
         id="name"
+        onUpdate={onUpdateValue}
+        confirm={confirm}
         errorText="Nama harus diisi"
-        onChange={onInputNameChangeHandler}
-        onBlur={onInputNameBlurHandler}
       />
       <Input
-        hasError={emailInputHasError}
-        value={enteredEmail}
         title="Your E-Mail"
-        type="text"
+        type="email"
         id="email"
+        onUpdate={onUpdateValue}
+        confirm={confirm}
         errorText="Isikan email yang valid"
-        onChange={onInputEmailChangeHandler}
-        onBlur={onInputEmailBlurHandler}
       />
 
       <div className="form-actions">

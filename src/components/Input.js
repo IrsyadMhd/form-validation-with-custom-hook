@@ -1,7 +1,31 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 function Input(props) {
-  const inputClasses = props.hasError ? "form-control invalid" : "form-control";
+  const [inputValue, setInputValue] = useState("");
+  const [isTouched, setIsTouched] = useState(false);
+
+  useEffect(() => {
+    if (props.confirm === 1) {
+      setInputValue("");
+      setIsTouched(false);
+    }
+  }, [props.confirm]);
+
+  const valueIsValid =
+    props.id === "email" ? inputValue.includes("@") : inputValue.trim() !== "";
+
+  const inputIsInvalid = !valueIsValid && isTouched;
+
+  const onChangeHandler = (e) => {
+    setInputValue(e.target.value);
+    props.onUpdate(e.target.value, props.id);
+  };
+
+  const onBlurHandler = () => {
+    setIsTouched(true);
+  };
+
+  const inputClasses = inputIsInvalid ? "form-control invalid" : "form-control";
 
   return (
     <Fragment>
@@ -10,11 +34,13 @@ function Input(props) {
         <input
           type={props.type}
           id={props.id}
-          value={props.value}
-          onBlur={props.onBlur}
-          onChange={(e) => props.onChange(e.target.value)}
+          value={inputValue}
+          onBlur={onBlurHandler}
+          onChange={onChangeHandler}
         />
-        {props.hasError && <p className="error-text">{props.errorText}</p>}
+        {(inputIsInvalid || !props.confirm) && (
+          <p className="error-text">{props.errorText}</p>
+        )}
       </div>
     </Fragment>
   );
